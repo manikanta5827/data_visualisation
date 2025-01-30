@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import api from "../utils/api";
 import BarChart from "./BarChart";
 import LineChart from "./LineChart";
@@ -36,9 +35,7 @@ const Dashboard = () => {
       }
     };
 
-    if (filters.age || filters.gender || filters.start_date || filters.end_date) {
-      fetchData();
-    }
+    fetchData()
   }, [filters]);
 
   const handleBarClick = (feature) => {

@@ -6,8 +6,8 @@ const Logout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user_name");
-    localStorage.removeItem("token"); // Clear any auth tokens
-    navigate('/login');
+    window.dispatchEvent(new Event("storage")); // Notify App.jsx about logout
+    navigate("/login", { replace: true });
   };
 
   return (

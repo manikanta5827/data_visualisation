@@ -1,6 +1,5 @@
 const pool = require('../config/db.js');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
   const { name, password, email } = req.body;
@@ -48,11 +47,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
-
-    res.status(200).json({ token, user_name: user.name });
+    res.status(200).json({ user_name: user.name });
   } catch (error) {
     res.status(501).json({ message: 'Server error' });
   }
