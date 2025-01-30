@@ -10,6 +10,9 @@ const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({
   connectionString,
+  ssl: {
+    rejectUnauthorized: false, // Allow self-signed certificates (used in Render's managed databases)
+  },
 });
 
 // Event listener for successful connection
@@ -21,4 +24,4 @@ pool.connect((err) => {
   console.log('Connected to PostgreSQL database');
 });
 
-module.exports =  pool ;
+module.exports = pool;

@@ -2,12 +2,11 @@ const data = require('../utils/data.json');
 
 const dataset = async (req, res) => {
     const { age, gender, start_date, end_date } = req.query;
-  console.log('inputs : ',age, gender, start_date, end_date);
+    console.log('inputs : ', age, gender, start_date, end_date);
     // Validate query parameters
     if (!age || !gender || !start_date || !end_date) {
-        return res.status(400).json({
-            message: 'Missing required query parameters: age, gender, start_date, and end_date are required.',
-        });
+        // console.log('object');
+        return res.status(200).json(data);
     }
 
     // Convert start_date and end_date to Date objects

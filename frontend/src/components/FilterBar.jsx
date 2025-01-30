@@ -1,59 +1,50 @@
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 
 const FilterBar = ({ filters, setFilters }) => {
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+  const [, setSearchParams] = useSearchParams();
+
+  const handleFilterChange = (key, value) => {
+    const updatedFilters = { ...filters, [key]: value };
+    setFilters(updatedFilters);
+    setSearchParams(updatedFilters);
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-100">
-      <div>
-        <label className="mr-2 font-medium">Age:</label>
-        <select
-          name="age"
-          value={filters.age}
-          onChange={handleInputChange}
-          className="p-2 border rounded"
-        >
-          <option value="">All</option>
-          <option value="15-25">15-25</option>
-          <option value=">25">25</option>
-        </select>
-      </div>
-      <div>
-        <label className="mr-2 font-medium">Gender:</label>
-        <select
-          name="gender"
-          value={filters.gender}
-          onChange={handleInputChange}
-          className="p-2 border rounded"
-        >
-          <option value="">All</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
-      </div>
-      <div>
-        <label className="mr-2 font-medium">Start Date:</label>
-        <input
-          type="date"
-          name="start_date"
-          value={filters.start_date}
-          onChange={handleInputChange}
-          className="p-2 border rounded"
-        />
-      </div>
-      <div>
-        <label className="mr-2 font-medium">End Date:</label>
-        <input
-          type="date"
-          name="end_date"
-          value={filters.end_date}
-          onChange={handleInputChange}
-          className="p-2 border rounded"
-        />
-      </div>
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <select
+        value={filters.age}
+        onChange={(e) => handleFilterChange("age", e.target.value)}
+        className="border border-gray-300 rounded-lg p-3 text-gray-700 bg-gray-50 focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Select Age</option>
+        <option value="15-25">15-25</option>
+        <option value=">25">&gt;25</option>
+      </select>
+
+      <select
+        value={filters.gender}
+        onChange={(e) => handleFilterChange("gender", e.target.value)}
+        className="border border-gray-300 rounded-lg p-3 text-gray-700 bg-gray-50 focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <input
+        type="date"
+        value={filters.start_date}
+        onChange={(e) => handleFilterChange("start_date", e.target.value)}
+        className="border border-gray-300 rounded-lg p-3 text-gray-700 bg-gray-50 focus:ring-2 focus:ring-blue-500"
+      />
+
+      <input
+        type="date"
+        value={filters.end_date}
+        onChange={(e) => handleFilterChange("end_date", e.target.value)}
+        className="border border-gray-300 rounded-lg p-3 text-gray-700 bg-gray-50 focus:ring-2 focus:ring-blue-500"
+      />
     </div>
   );
 };

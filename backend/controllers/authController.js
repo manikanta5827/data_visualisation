@@ -58,15 +58,5 @@ const loginUser = async (req, res) => {
   }
 };
 
-const logoutUser = async (req, res) => {
-  try {
-   
-    res.clearCookie("token"); 
-    res.status(200).json({ message: "User logged out successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error during logout" });
-  }
-};
 
-
-module.exports= { registerUser, loginUser, logoutUser };
+module.exports= { registerUser, loginUser};

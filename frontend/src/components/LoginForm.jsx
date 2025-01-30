@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("Nandha@example.com");
@@ -10,19 +10,17 @@ const LoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:4000/auth/login", {
-        email,
-        password,
-      });
-
-      // Save the token and user_name to localStorage
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user_name", response.data.user_name);
-
-      // Redirect to the dashboard
-      navigate("/api/data?age=>25&gender=Female&start_date=2022-10-05&end_date=2022-10-23");
+      const response = await api.post("/auth/login", { email, password });
+      
+      if (response.data && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user_name", response.data.user_name);
+        navigate(`/`);
+      } else {
+        alert("Invalid login response");
+      }
     } catch (error) {
-      alert("Login failed!");
+      alert("Login failed! Please check your credentials.");
     }
   };
 
@@ -31,7 +29,7 @@ const LoginForm = () => {
       <form 
         className="p-6 bg-white rounded shadow-md w-96" 
         onSubmit={handleLogin}
-        autoComplete="on" // Added autocomplete for the form
+        autoComplete="on"
       >
         <h2 className="text-2xl font-bold text-center">Login</h2>
         <div className="mt-4">
@@ -44,7 +42,7 @@ const LoginForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            autoComplete="email" // Added autocomplete for email field
+            autoComplete="email"
           />
         </div>
         <div className="mt-4">
@@ -57,12 +55,12 @@ const LoginForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            autoComplete="current-password" // Added autocomplete for password field
+            autoComplete="current-password"
           />
         </div>
         <button className="w-full py-2 mt-6 text-white bg-blue-500 rounded">Login</button>
         <p className="mt-4 text-center">
-          Don't have an account? <a href="/register">Register</a>
+          Don't have an account? <a href="/register" className="text-blue-600">Register</a>
         </p>
       </form>
     </div>

@@ -1,24 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import api from "../utils/api"; // Custom Axios instance
-import BarChart from "../components/BarChart";
-import LineChart from "../components/LineChart";
-import Logout from "../components/Logout";
+import { useSearchParams } from "react-router-dom";
+import api from "../utils/api";
+import BarChart from "./BarChart";
+import LineChart from "./LineChart";
+import Logout from "./Logout";
+import FilterBar from "./FilterBar";
+import Cookies from "js-cookie"; // Import js-cookie for cookie management
 
 const Dashboard = () => {
   const [data, setData] = useState([]);
-  const [selectedCategoryData, setSelectedCategoryData] = useState(null); // State for LineChart data
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
+  const [selectedFeature, setSelectedFeature] = useState('A');  // Default feature is A
   const [filters, setFilters] = useState({
-    age: searchParams.get("age") || "",
-    gender: searchParams.get("gender") || "",
-    start_date: searchParams.get("start_date") || "",
-    end_date: searchParams.get("end_date") || "",
+    age: '',
+    gender: '',
+    start_date: '',
+    end_date: '',
   });
 
-  // Fetch data based on query parameters
+  useEffect(() => {
+    // Retrieve user preferences from cookies when component mounts
+    const savedFilters = Cookies.get("filters");
+    if (savedFilters) {
+      setFilters(JSON.parse(savedFilters)); // Set the filters from cookies
+    }
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,89 +36,70 @@ const Dashboard = () => {
       }
     };
 
-    fetchData();
+    if (filters.age || filters.gender || filters.start_date || filters.end_date) {
+      fetchData();
+    }
   }, [filters]);
 
-  // Update filters and URL when the "Apply" button is clicked
-  const applyFilters = () => {
-    navigate(`/api/data?${new URLSearchParams(filters).toString()}`, { replace: true });
+  const handleBarClick = (feature) => {
+    setSelectedFeature(feature);  // Set the selected feature for line chart
   };
 
-  // Handle bar click to set data for the line chart
-  const handleBarClick = (category) => {
-    const filteredData = data.filter((item) => item.Category === category.Category);
-    setSelectedCategoryData(filteredData);
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    Cookies.set("filters", JSON.stringify(newFilters)); // Save the updated filters to cookies
+  };
+
+  const handleResetPreferences = () => {
+    setFilters({
+      age: '',
+      gender: '',
+      start_date: '',
+      end_date: '',
+    });
+    Cookies.remove("filters"); // Clear filters from cookies
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="p-6 bg-blue-500 text-white flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Good afternoon, {localStorage.getItem("user_name") || "User"}</h1>
+    <div className="min-h-screen bg-gray-100">
+      <div className="p-6 bg-green-300 text-white flex justify-between items-center shadow-lg">
+        <h1 className="text-2xl font-semibold">Good afternoon, <span className="text-gray-700">{localStorage.getItem("user_name") || "User"}</span></h1>
         <Logout />
       </div>
-      <div className="p-8 bg-white shadow-md">
-        <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
-          <select
-            value={filters.age}
-            onChange={(e) => setFilters({ ...filters, age: e.target.value })}
-            className="border border-gray-300 rounded p-2"
+
+      <div className="p-6 max-w-6xl mx-auto ">
+        <div className="bg-white p-6 shadow-lg rounded-xl">
+          <h1 className="text-2xl font-bold text-gray-700 mb-6">Dashboard</h1>
+          <FilterBar filters={filters} setFilters={handleFilterChange} />
+          <button
+            onClick={handleResetPreferences}
+            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md"
           >
-            <option value="">Select Age</option>
-            <option value="15-25">15-25</option>
-            <option value=">25">&gt;25</option>
-          </select>
-          <select
-            value={filters.gender}
-            onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-            className="border border-gray-300 rounded p-2"
-          >
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-          <input
-            type="date"
-            value={filters.start_date}
-            onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-            className="border border-gray-300 rounded p-2"
-          />
-          <input
-            type="date"
-            value={filters.end_date}
-            onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-            className="border border-gray-300 rounded p-2"
-          />
+            Reset Preferences
+          </button>
         </div>
-        <button
-          onClick={applyFilters}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Apply
-        </button>
-      </div>
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {data.length > 0 ? (
-          <>
-            {/* Bar Chart with Click Handler */}
-            <div className="bg-white p-4 rounded shadow-md">
-              <h2 className="text-lg font-semibold mb-2 text-center">Bar Chart</h2>
-              <BarChart data={data} onBarClick={handleBarClick} />
-            </div>
-            
-            {/* Line Chart (conditionally rendered) */}
-            <div className="bg-white p-4 rounded shadow-md">
-              <h2 className="text-lg font-semibold mb-2 text-center">Line Chart</h2>
-              {selectedCategoryData ? (
-                <LineChart data={selectedCategoryData} />
-              ) : (
-                <p className="text-center">Click on a bar to view trend data.</p>
-              )}
-            </div>
-          </>
-        ) : (
-          <p>No data available.</p>
-        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+          {data.length > 0 ? (
+            <>
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h2 className="text-lg font-semibold text-center mb-4">Bar Chart</h2>
+                <BarChart data={data} onBarClick={handleBarClick} />
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h2 className="text-lg font-semibold text-center mb-4">Line Chart</h2>
+                {data.length > 0 ? (
+                  <LineChart data={data} feature={selectedFeature} />
+                ) : (
+                  <p className="text-center text-gray-500">Click on a bar to view trend data.</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <p className="text-center text-gray-600">No data available.</p>
+          )}
+        </div>
       </div>
     </div>
   );

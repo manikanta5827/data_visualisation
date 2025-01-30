@@ -10,32 +10,51 @@ import {
   Legend
 } from 'chart.js';
 
-// Register components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const BarChart = ({ data, onBarClick }) => {
+  const features = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  const getFeatureData = (feature) => data.map((item) => parseInt(item[feature]));
+  const calculateTotal = (feature) => getFeatureData(feature).reduce((a, b) => a + b, 0);
+
   const chartData = {
-    labels: data.map((item) => item.Day),
+    labels: features,
     datasets: [
       {
-        label: 'Feature A',
-        data: data.map((item) => parseInt(item.A)),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        label: 'Feature Data',
+        data: features.map(calculateTotal),
+        backgroundColor: Array(features.length).fill('rgba(134, 239, 172, 0.7)'),
+        hoverBackgroundColor: Array(features.length).fill('rgba(134, 239, 172, 1)'),
       },
     ],
   };
 
   const options = {
-    onClick: (event, elements) => {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: { 
+          stepSize: 500, 
+          max: Math.max(...features.map(calculateTotal)) + 500,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        labels: features,
+      },
+    },
+    onClick: (_, elements) => {
       if (elements.length > 0) {
-        const index = elements[0].index; // Get the index of the clicked bar
-        const selectedCategory = data[index];
-        onBarClick(selectedCategory); // Pass the clicked category to the parent component
+        onBarClick(features[elements[0].index]);
       }
     },
   };
 
-  return <Bar data={chartData} options={options} />;
+  return <div className="h-[310px] w-full"><Bar data={chartData} options={options} /></div>;
 };
 
 export default BarChart;

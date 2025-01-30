@@ -1,31 +1,19 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api"; // Custom Axios instance
 
 const Logout = () => {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      // Send logout request to backend
-      await api.post("/auth/logout");
-
-      // Clear localStorage
-      localStorage.removeItem("token");
-      localStorage.removeItem("user_name");
-
-      // Navigate to login page
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-      alert("Logout failed. Please try again.");
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("user_name");
+    localStorage.removeItem("token"); // Clear any auth tokens
+    navigate('/login');
   };
 
   return (
     <button
       onClick={handleLogout}
-      className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-white"
+      className="bg-customRed px-5 py-2 rounded-lg text-white font-semibold shadow-md transition-all duration-300 hover:bg-red-600 hover:shadow-lg active:scale-95"
     >
       Logout
     </button>
